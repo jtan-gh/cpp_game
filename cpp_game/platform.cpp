@@ -13,8 +13,9 @@ struct Render_State {
 };
 
 global_variable Render_State render_state;
-
+#include "platform_common.cpp"
 #include "renderer.cpp"
+#include "game.cpp"
 
 LRESULT CALLBACK window_callback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     LRESULT result = 0;
@@ -65,30 +66,68 @@ int WinMain(
     // Register class
     RegisterClass(&window_class);
 
-    // Create window with fixed size
+    // Create Window with initial fixed size
     HWND window = CreateWindow(window_class.lpszClassName, "My First Game!", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1920, 1080, 0, 0, hInstance, 0);
     HDC hdc = GetDC(window);
 
+    Input input = {};
+
+    float delta_time = 0.016666f;
+    LARGE_INTEGER frame_begin_time;
+    QueryPerformanceCounter(&frame_begin_time);
+
+    float performance_frequency;
+    {
+        LARGE_INTEGER perf;
+        QueryPerformanceFrequency(&perf);
+        performance_frequency = (float)perf.QuadPart;
+    }
+
     while (running) {
         MSG message;
-        while (PeekMessage(&message, window, 0, 0, PM_REMOVE)) {
-            TranslateMessage(&message);
-            DispatchMessage(&message);
+        tile_width = static_cast<float>(render_state.width) / tile_columns;
+        tile_height = static_cast<float>(render_state.height) / tile_rows;
+
+        for (int i = 0; i < BUTTON_COUNT; i++) {
+            input.buttons[i].changed = false;
         }
 
-        clear_screen(0xff5500);
+        while (PeekMessage(&message, window, 0, 0, PM_REMOVE)) {
+            switch (message.message) {
+                case WM_KEYUP:
+                case WM_KEYDOWN: {
+                    u32 vk_code = (u32)message.wParam;
+                    bool is_down = ((message.lParam & (1 << 31)) == 0);
+                #define process_button(b, vk)\
+                case vk: { \
+                    input.buttons[b].is_down = is_down; \
+                    input.buttons[b].changed = true; \
+                }break;
+                    switch (vk_code) {
+                        process_button(BUTTON_UP, VK_UP);
+                        process_button(BUTTON_DOWN, VK_DOWN);
+                        process_button(BUTTON_LEFT, VK_LEFT);
+                        process_button(BUTTON_RIGHT, VK_RIGHT);
 
-        // Draw the grid
-        draw_grid();
-        //draw_square_at_center(2);
+                    }
+                } break;
 
-        PixelCoordinate top_left = { 0, 0 };
-        PixelCoordinate bottom_right = { 10, 500 };
+                default: {
+                    TranslateMessage(&message);
+                    DispatchMessage(&message);
+                }
+            }
+        }
 
-        fill_square_between_pixel_coordinates(top_left, bottom_right);
-        fill_square_at_tile_coordinate(0, 5, 0x000000);
+        // Simulate
+        simulate_game(&input, delta_time);
 
         // Render
         StretchDIBits(hdc, 0, 0, render_state.width, render_state.height, 0, 0, render_state.width, render_state.height, render_state.memory, &render_state.bitmap_info, DIB_RGB_COLORS, SRCCOPY);
+
+        LARGE_INTEGER frame_end_time;
+        QueryPerformanceCounter(&frame_end_time);
+        delta_time = (float)(frame_end_time.QuadPart - frame_begin_time.QuadPart)/performance_frequency;
+        frame_begin_time = frame_end_time;
     }
 }

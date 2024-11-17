@@ -10,8 +10,10 @@ typedef unsigned int u32;
 typedef long long s64;
 typedef unsigned long long u64;
 
-global_variable const int TARGET_tile_coordinate_WIDTH = 48;
-global_variable const int TARGET_tile_coordinate_HEIGHT = 27;
+global_variable const int tile_columns = 48;
+global_variable const int tile_rows = 27;
+global_variable float tile_width = 48.f;
+global_variable float tile_height = 27.f;
 
 inline int
 clamp(int min, int val, int max) {
