@@ -11,12 +11,6 @@ float left_bar_tile_y = 10;
 float left_bar_tile_x2 = left_bar_tile_x+1;
 float left_bar_tile_y2 = tile_rows- left_bar_tile_y;
 
-float left_bar_tile_x = 2;
-float left_bar_tile_y = 10;
-float left_bar_tile_x2 = left_bar_tile_x + 1;
-float left_bar_tile_y2 = tile_rows - left_bar_tile_y;
-
-
 internal void simulate_game(Input* input, float dt) {
 	clear_screen(0xff5500);
 	draw_grid();
