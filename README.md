@@ -2,6 +2,10 @@
 
 This is a simple game developed in C++ using the Windows API. The primary goal of this project is to explore and practice game development concepts, including rendering, physics, and collision detection, while deepening knowledge of C++ and object-oriented programming.
 
+
+https://github.com/user-attachments/assets/ffed815c-d565-4286-9c25-018b077032f0
+
+
 ---
 
 ## Objectives
