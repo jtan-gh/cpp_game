@@ -13,7 +13,6 @@ struct Render_State {
 };
 
 global_variable Render_State render_state;
-#include "platform_common.cpp"
 #include "renderer.cpp"
 #include "game.cpp"
 
@@ -71,7 +70,7 @@ int WinMain(
     HDC hdc = GetDC(window);
 
     Input input = {};
-
+    GameState game_state;
     float delta_time = 0.016666f;
     LARGE_INTEGER frame_begin_time;
     QueryPerformanceCounter(&frame_begin_time);
@@ -109,6 +108,10 @@ int WinMain(
                         process_button(BUTTON_LEFT, VK_LEFT);
                         process_button(BUTTON_RIGHT, VK_RIGHT);
 
+                        process_button(W_KEY, 0x57);
+                        process_button(S_KEY, 0x53);
+                        process_button(A_KEY, 0x41);
+                        process_button(D_KEY, 0x44);
                     }
                 } break;
 
@@ -120,7 +123,8 @@ int WinMain(
         }
 
         // Simulate
-        simulate_game(&input, delta_time);
+        simulate_game(&input, delta_time, game_state);
+        render_game(game_state);
 
         // Render
         StretchDIBits(hdc, 0, 0, render_state.width, render_state.height, 0, 0, render_state.width, render_state.height, render_state.memory, &render_state.bitmap_info, DIB_RGB_COLORS, SRCCOPY);
